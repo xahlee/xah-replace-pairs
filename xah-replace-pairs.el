@@ -14,7 +14,7 @@
 
 ;;; Commentary:
 
-;; This package provides elisp functions that do find/replace with multiple pairs of strings. and guarantees that earlier find/replace pair does not effect later find/replace pairs.
+;; This package provides elisp functions that do find/replace with multiple pairs of strings.  and guarantees that earlier find/replace pair does not effect later find/replace pairs.
 
 ;; The functions are:
 
@@ -156,6 +156,32 @@ This function is is a wrapper of `xah-replace-pairs-region-recursive'. See there
     (goto-char (point-min))
     (xah-replace-pairs-region-recursive (point-min) (point-max) φpairs)
     (buffer-string)))
+
+;;;###autoload
+(defun xah-join-region (&optional arg)
+  "Join lines region or `yank' and join lines.
+
+With ARG nil or 1, insert the most recent kill and join lines.
+With argument N, reinsert the Nth most recent kill and join lines."
+  (interactive "p")
+  (let (
+	(v
+	 '(
+	   ["[\u3000\s\t\n]+" "\s"]
+	   ["^\s-*\\|\s-*$" ""]
+	   ["\\(\\s(\\)\s-*\\(\\s(\\)" "\\1\\2"]
+	   ["\\(\\s)\\)\s-*\\(\\s)\\)" "\\1\\2"]
+	   ["\\(\\s(\\)\s-*\\(\\s(\\)" "\\1\\2"]
+	   ["\\(\\s)\\)\s-*\\(\\s)\\)" "\\1\\2"]
+	   ))
+	)
+    (if (use-region-p)
+	(xah-replace-regexp-pairs-region (region-beginning) (region-end)
+					 v)
+      (yank arg)
+      (xah-replace-regexp-pairs-region (mark) (point)
+				       v)
+      )))
 
 (provide 'xah-replace-pairs)
 
